@@ -84,7 +84,7 @@ def encoder4():
     return(encoder)
 
 def drive(sp1, sp2, sp3, sp4, enc_dist)
-	while (encoder1() < enc_dist && encoder2() < enc_dist && encoder3() < enc_dist && encoder4() < enc_dist):
+	while (encoder1() < enc_dist and encoder2() < enc_dist and encoder3() < enc_dist and encoder4() < enc_dist):
 		bus.write_byte_data(MD25_ADDRESS12, SPEED1, sp1)
 		bus.write_byte_data(MD25_ADDRESS12, SPEED2, sp2)
 		bus.write_byte_data(MD25_ADDRESS34, SPEED1, sp3)
