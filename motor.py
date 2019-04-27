@@ -27,6 +27,8 @@ VOLT_READ = 0X0A
 bus.write_byte_data(MD25_ADDRESS12, MODE_SELECTOR, 1)
 bus.write_byte_data(MD25_ADDRESS34, MODE_SELECTOR, 1)
 
+opflow.optic_setup()
+
 def set_acceleration(x):
     bus.write_byte_data(MD25_ADDRESS12, ACCELERATION, x)
     t.sleep(0.05)
@@ -67,19 +69,24 @@ def stop():
     return
 
 def move(xp, yp, x2, y2):
+    opflow.reset()
     xe = x2 - xp
     ye = y2 - yp
     
-    while((xe**2 + ye**2)**0.5 >= 5):
-        Kp = 0.02
+    
+    while(abs(xe) >= 3 or abs(ye) >= 3):
+        Kp = 0.03
         Kd = 0.01
-        Ki = 0.005
+        Ki = 0.008
         
         x1 = opflow.fetch()[0] + xp
         y1 = opflow.fetch()[1] + yp
         
         xe = x2 - x1
         ye = y2 - y1
+
+        print("xe: %d  ye: %d" %(xe, ye))
+        print("x1: %d  y1: %d" %(x1, y1))
         
         xpe = 0.0
         ype = 0.0
@@ -87,8 +94,8 @@ def move(xp, yp, x2, y2):
         yes = 0.0
         
         V = Kp * (xe ** 2 + ye ** 2) ** 0.5 + Kd * (xpe ** 2 + ype ** 2) ** 0.5 + Ki * (xes ** 2 + yes ** 2) ** 0.5
-        V = 60 * max(min(1, V), 0)
-        th = np.arctan((y2 - y1)/(x2 - x1))
+        V = 40 * max(min(1, V), 0)
+        th = np.arctan2((y2 - y1),(x2 - x1))
         Vx = V * np.cos(th)
         Vy = V * np.sin(th)
         V1 = 0.5 * ((Vx/np.cos(np.pi/4)) + (Vy/np.sin(np.pi/4)))
@@ -102,6 +109,7 @@ def move(xp, yp, x2, y2):
         ype = ye
         xes += xe
         yes += ye
+        t.sleep(0.05)
     stop()
     return
 
